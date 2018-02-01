@@ -8,6 +8,7 @@
       <button @click="selectCircle">Circle</button>
       <button @click="selectText">Text</button>
       <button @click="selectLine">Line</button>
+      <button @click="selectImage">Image</button>
       <button @click="removeElement" v-on:keyup.delete="removeElement">Remove</button>
       <button v-if='lastActions.length > 0' @click='undoLastRemove'>Unde Delete</button>
       <input v-model='brushWidth' />
@@ -28,6 +29,11 @@
     <div v-if='mode === "Circle"'>
       Stroke Width:
       <input type="text" v-model='circle.strokeWidth'/>
+    </div>
+    <div v-if='mode === "Image"'>
+      Url:
+      <input type="text" v-model='image.url'/>
+      <button @click="addImage">Add</button>
     </div>
   </div>
 </template>
@@ -55,6 +61,9 @@ export default {
       },
       circle: {
         strokeWidth: 1
+      },
+      image: {
+        url: 'https://s7d1.scene7.com/is/image/PETCO/cat-category-090617-369w-269h-hero-cutout-d?fmt=png-alpha'
       },
       lastActions: []
     })
@@ -99,7 +108,7 @@ export default {
   },
   methods: {
     selectBrush() {
-      this.disableSelection()
+      // this.disableSelection()
       this.mode = 'Brush'
       this.isDrawingMode = true
       this.canvasObj.isDrawingMode = this.isDrawingMode
@@ -109,10 +118,10 @@ export default {
     removeElement() {
       if (!this.canvasObj.getActiveGroup())
         this.lastActions.push(this.canvasObj.getActiveObject()) 
-        this.canvasObj.remove(this.canvasObj.getActiveObject())
+      this.canvasObj.remove(this.canvasObj.getActiveObject())
     },
     selectRect() {
-      this.disableSelection()
+      // this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Rectangle'
@@ -126,12 +135,16 @@ export default {
     drawShape(data) {      
       if (this.mode === 'Rectangle') {
         this.drawRectangle(data)
+        this.disableSelection()
       } else if(this.mode === 'Text') {
         this.drawTextBox(data)
+        this.disableSelection()
       } else if(this.mode === 'Line') {
         this.drawLine(data)
+        this.disableSelection()
       } else if(this.mode === 'Circle') {
         this.drawCircle(data)
+        this.disableSelection()
       }
     },
     drawRectangle(data) {
@@ -141,7 +154,7 @@ export default {
       this.canvasObj.add(rect) 
     },
     selectText() {
-      this.disableSelection()
+      // this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Text'
@@ -160,7 +173,7 @@ export default {
       this.text.textAlign = e.target.name
     },
     selectLine() {
-      this.disableSelection()
+      // this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Line'
@@ -199,7 +212,7 @@ export default {
       });
     },
     selectCircle() {
-      this.disableSelection()
+      // this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Circle'
@@ -221,6 +234,17 @@ export default {
       const item = this.lastActions.slice(-1).pop()
       this.lastActions.pop()
       this.canvasObj.add(item)
+    },
+    selectImage() {
+      this.mode = "Image"
+    },
+    addImage() {
+      fabric.Image.fromURL(this.image.url, (oImg) => {             
+        oImg.scale(0.5);
+        oImg.set({'left':0});
+        oImg.set({'top':0});
+        this.canvasObj.add(oImg);
+      });
     }
   }
 }
