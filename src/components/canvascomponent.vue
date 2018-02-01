@@ -5,6 +5,7 @@
       <button @click="selectSelect">Select</button>
       <button @click="selectBrush">Brush</button>
       <button @click="selectRect">Rectangle</button>
+      <button @click="selectCircle">Circle</button>
       <button @click="selectText">Text</button>
       <button @click="selectLine">Line</button>
       <button @click="removeElement" v-on:keyup.delete="removeElement">Remove</button>
@@ -22,6 +23,10 @@
     <div v-if='mode === "Line"'>
       Width:
       <input type="text" v-model='line.strokeWidth'/>
+    </div>    
+    <div v-if='mode === "Circle"'>
+      Stroke Width:
+      <input type="text" v-model='circle.strokeWidth'/>
     </div>
   </div>
 </template>
@@ -45,6 +50,9 @@ export default {
         fontFamily: 'Arial'
       },
       line: {
+        strokeWidth: 1
+      },
+      circle: {
         strokeWidth: 1
       }
     })
@@ -125,6 +133,8 @@ export default {
         this.drawTextBox(data)
       } else if(this.mode === 'Line') {
         this.drawLine(data)
+      } else if(this.mode === 'Circle') {
+        this.drawCircle(data)
       }
     },
     drawRectangle(data) {
@@ -188,6 +198,24 @@ export default {
       this.canvasObj.forEachObject(function(o) {
         o.selectable = true;
       });
+    },
+    selectCircle() {
+      this.disableSelection()
+      this.isDrawingMode = false
+      this.canvasObj.isDrawingMode = this.isDrawingMode
+      this.mode = 'Circle'
+    },
+    drawCircle(data) {
+      const radius = data.width / 2
+      let options = {
+        radius: radius,
+        top: data.top,
+        left: data.left,
+        fill: this.color,
+        strokeWidth: parseInt(this.circle.strokeWidth)
+      }
+      let circle = new fabric.Circle(options)
+      this.canvasObj.add(circle);
     }
   }
 }
