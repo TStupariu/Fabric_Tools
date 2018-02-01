@@ -6,7 +6,7 @@
     <button @click="selectRect">Rectangle</button>
     <button @click="removeElement">Remove</button>
     <input v-model='brushWidth' />
-    <input type="color" v-model='color'>
+    <input ref='colorPicker' type="color" :value='color' />
   </div>
 </template>
 
@@ -37,7 +37,9 @@ export default {
       document.body.appendChild(this.canvas);
       return this.canvas;
     }
-
+  },
+  mounted() {
+    // SHAPE DRAWING
     let initialCoord = null
     this.canvasObj.on('mouse:down', (o) => {
       if (!initialCoord) {
@@ -49,16 +51,19 @@ export default {
         initialCoord = null
       })
     })
+    // Color Picker
+    this.$refs.colorPicker.addEventListener('input', (event) => {
+      this.color = event.target.value
+      this.canvasObj.freeDrawingBrush.color = this.color
+    })
   },
   methods: {
     selectBrush() {
       this.mode = 'Brush'
       this.isDrawingMode = true
       this.canvasObj.isDrawingMode = this.isDrawingMode
-      if (this.isDrawingMode) {
-        this.canvasObj.freeDrawingBrush.color = this.color
-        this.canvasObj.freeDrawingBrush.width = this.brushWidth
-      }
+      this.canvasObj.freeDrawingBrush.color = this.color
+      this.canvasObj.freeDrawingBrush.width = this.brushWidth
     },
     removeElement() {
       let group = this.canvasObj.getActiveGroup()
