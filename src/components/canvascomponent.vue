@@ -1,13 +1,28 @@
 <template>
   <div>
-    <h1>Mode: {{mode}}</h1>
-    <button @click="selectSelect">Select</button>
-    <button @click="selectBrush">Brush</button>
-    <button @click="selectRect">Rectangle</button>
-    <button @click="selectText">Text</button>
-    <button @click="removeElement">Remove</button>
-    <input v-model='brushWidth' />
-    <input ref='colorPicker' type="color" :value='color' />
+    <div>
+      <h1>Mode: {{mode}}</h1>
+      <button @click="selectSelect">Select</button>
+      <button @click="selectBrush">Brush</button>
+      <button @click="selectRect">Rectangle</button>
+      <button @click="selectText">Text</button>
+      <button @click="selectLine">Line</button>
+      <button @click="removeElement">Remove</button>
+      <input v-model='brushWidth' />
+      <input ref='colorPicker' type="color" :value='color' />
+    </div>
+    <div v-if='mode === "Text"'>
+      Font Size:
+      <input type="text" v-model='text.fontSize'/>
+      Allign:
+      <button name="left" v-bind:class="{ buttonActive: text.textAlign === 'left' }" @click="setAllignment">Left</button>
+      <button name="center" v-bind:class="{ buttonActive: text.textAlign === 'center' }" @click="setAllignment">Center</button>
+      <button name="right" v-bind:class="{ buttonActive: text.textAlign === 'right' }" @click="setAllignment">Right</button>
+    </div>
+    <div v-if='mode === "Line"'>
+      Width:
+      <input type="text" v-model='line.strokeWidth'/>
+    </div>
   </div>
 </template>
 
@@ -23,7 +38,14 @@ export default {
       canvas: null,
       isDrawingMode: false,
       color: '#000000',
-      brushWidth: 5
+      brushWidth: 5,
+      text: {
+        fontSize: 10,
+        textAlign: 'center'
+      },
+      line: {
+        strokeWidth: 1
+      }
     })
   },
   created() {
@@ -91,6 +113,8 @@ export default {
         this.drawRectangle(data)
       } else if(this.mode === 'Text') {
         this.drawTextBox(data)
+      } else if(this.mode === 'Line') {
+        this.drawLine(data)
       }
     },
     drawRectangle(data) {
@@ -106,12 +130,49 @@ export default {
       this.mode = 'Text'
     },
     drawTextBox(data) {
-      data.fontSize = 12
-      data.textAlign = 'center'
+      data.fontSize = this.text.fontSize
+      data.textAlign = this.text.textAlign
+      data.fill = this.color
       var text = new fabric.Textbox('Text...', data)
       this.canvasObj.add(text);
       this.selectSelect()
+    },
+    setAllignment(e) {
+      this.text.textAlign = e.target.name
+    },
+    selectLine() {
+      this.isDrawingMode = false
+      this.canvasObj.isDrawingMode = this.isDrawingMode
+      this.mode = 'Line'
+    },
+    drawLine(data) {
+      let x1 = data.left
+      let x2 = data.left + data.width
+      let y1 = data.top
+      let y2 = data.top + data.height
+      let options = {
+        stroke: this.color
+      }
+      if (data.height >= 0){
+        options.top = data.top
+      } else {
+        options.bottom = data.top
+      }
+      if (data.width >= 0) {
+        options.left = data.left
+      } else {
+        options.right = data.left
+      }
+      options.strokeWidth = parseInt(this.line.strokeWidth)
+      let line = new fabric.Line([x1, y1, x2, y2], options)
+      this.canvasObj.add(line)
     }
   }
 }
 </script>
+
+<style type="text/css" scoped>
+.buttonActive {
+  background-color: white;
+}
+</style>
