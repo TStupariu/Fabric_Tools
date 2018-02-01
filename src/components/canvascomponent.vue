@@ -82,6 +82,7 @@ export default {
   },
   methods: {
     selectBrush() {
+      this.disableSelection()
       this.mode = 'Brush'
       this.isDrawingMode = true
       this.canvasObj.isDrawingMode = this.isDrawingMode
@@ -99,16 +100,18 @@ export default {
       this.canvasObj.remove(this.canvasObj.getActiveObject())
     },
     selectRect() {
+      this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Rectangle'
     },
     selectSelect() {
+      this.enableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Select'
     },
-    drawShape(data) {
+    drawShape(data) {      
       if (this.mode === 'Rectangle') {
         this.drawRectangle(data)
       } else if(this.mode === 'Text') {
@@ -121,10 +124,10 @@ export default {
       data.strokeWidth = 0
       data.fill = this.color
       let rect = new fabric.Rect(data)
-      console.log(rect)
       this.canvasObj.add(rect) 
     },
     selectText() {
+      this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Text'
@@ -141,6 +144,7 @@ export default {
       this.text.textAlign = e.target.name
     },
     selectLine() {
+      this.disableSelection()
       this.isDrawingMode = false
       this.canvasObj.isDrawingMode = this.isDrawingMode
       this.mode = 'Line'
@@ -166,6 +170,16 @@ export default {
       options.strokeWidth = parseInt(this.line.strokeWidth)
       let line = new fabric.Line([x1, y1, x2, y2], options)
       this.canvasObj.add(line)
+    },
+    disableSelection() {
+      this.canvasObj.forEachObject(function(o) {
+        o.selectable = false;
+      });
+    },
+    enableSelection() {
+      this.canvasObj.forEachObject(function(o) {
+        o.selectable = true;
+      });
     }
   }
 }
