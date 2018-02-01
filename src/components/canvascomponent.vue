@@ -9,6 +9,7 @@
       <button @click="selectText">Text</button>
       <button @click="selectLine">Line</button>
       <button @click="removeElement" v-on:keyup.delete="removeElement">Remove</button>
+      <button v-if='lastActions.length > 0' @click='undoLastRemove'>Unde Delete</button>
       <input v-model='brushWidth' />
       <input ref='colorPicker' type="color" :value='color' />
     </div>
@@ -54,7 +55,8 @@ export default {
       },
       circle: {
         strokeWidth: 1
-      }
+      },
+      lastActions: []
     })
   },
   created() {
@@ -105,14 +107,9 @@ export default {
       this.canvasObj.freeDrawingBrush.width = this.brushWidth
     },
     removeElement() {
-      let group = this.canvasObj.getActiveGroup()
-      if (group) {
-        group.forEachObject((o) => {
-          this.canvasObj.remove(o)
-        })
-        this.canvasObj.discardActiveGroup().renderAll()
-      }
-      this.canvasObj.remove(this.canvasObj.getActiveObject())
+      if (!this.canvasObj.getActiveGroup())
+        this.lastActions.push(this.canvasObj.getActiveObject()) 
+        this.canvasObj.remove(this.canvasObj.getActiveObject())
     },
     selectRect() {
       this.disableSelection()
@@ -155,6 +152,7 @@ export default {
       data.fill = this.color
       data.fontFamily = this.text.fontFamily
       var text = new fabric.Textbox('Text...', data)
+      this.lastActions.push(text)
       this.canvasObj.add(text);
       this.selectSelect()
     },
@@ -187,6 +185,7 @@ export default {
       }
       options.strokeWidth = parseInt(this.line.strokeWidth)
       let line = new fabric.Line([x1, y1, x2, y2], options)
+      this.lastActions.push(line)
       this.canvasObj.add(line)
     },
     disableSelection() {
@@ -215,7 +214,13 @@ export default {
         strokeWidth: parseInt(this.circle.strokeWidth)
       }
       let circle = new fabric.Circle(options)
-      this.canvasObj.add(circle);
+      this.lastActions.push(circle)
+      this.canvasObj.add(circle)
+    },
+    undoLastRemove() {
+      const item = this.lastActions.slice(-1).pop()
+      this.lastActions.pop()
+      this.canvasObj.add(item)
     }
   }
 }
