@@ -7,7 +7,7 @@
       <button @click="selectRect">Rectangle</button>
       <button @click="selectText">Text</button>
       <button @click="selectLine">Line</button>
-      <button @click="removeElement">Remove</button>
+      <button @click="removeElement" v-on:keyup.delete="removeElement">Remove</button>
       <input v-model='brushWidth' />
       <input ref='colorPicker' type="color" :value='color' />
     </div>
@@ -41,7 +41,8 @@ export default {
       brushWidth: 5,
       text: {
         fontSize: 10,
-        textAlign: 'center'
+        textAlign: 'center',
+        fontFamily: 'Arial'
       },
       line: {
         strokeWidth: 1
@@ -79,6 +80,12 @@ export default {
       this.color = event.target.value
       this.canvasObj.freeDrawingBrush.color = this.color
     })
+    // DELETE elements when DLEETE os BACKSPACE is pressed
+    window.addEventListener('keyup', (ev) => {
+      if (ev.keyCode === 8 || ev.keyCode === 46) {
+        this.removeElement()
+      }
+    });
   },
   methods: {
     selectBrush() {
@@ -136,6 +143,7 @@ export default {
       data.fontSize = this.text.fontSize
       data.textAlign = this.text.textAlign
       data.fill = this.color
+      data.fontFamily = this.text.fontFamily
       var text = new fabric.Textbox('Text...', data)
       this.canvasObj.add(text);
       this.selectSelect()
