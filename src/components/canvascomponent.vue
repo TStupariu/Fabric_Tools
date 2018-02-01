@@ -4,6 +4,7 @@
     <button @click="selectSelect">Select</button>
     <button @click="selectBrush">Brush</button>
     <button @click="selectRect">Rectangle</button>
+    <button @click="selectText">Text</button>
     <button @click="removeElement">Remove</button>
     <input v-model='brushWidth' />
     <input ref='colorPicker' type="color" :value='color' />
@@ -88,6 +89,8 @@ export default {
     drawShape(data) {
       if (this.mode === 'Rectangle') {
         this.drawRectangle(data)
+      } else if(this.mode === 'Text') {
+        this.drawTextBox(data)
       }
     },
     drawRectangle(data) {
@@ -96,6 +99,18 @@ export default {
       let rect = new fabric.Rect(data)
       console.log(rect)
       this.canvasObj.add(rect) 
+    },
+    selectText() {
+      this.isDrawingMode = false
+      this.canvasObj.isDrawingMode = this.isDrawingMode
+      this.mode = 'Text'
+    },
+    drawTextBox(data) {
+      data.fontSize = 12
+      data.textAlign = 'center'
+      var text = new fabric.Textbox('Text...', data)
+      this.canvasObj.add(text);
+      this.selectSelect()
     }
   }
 }
