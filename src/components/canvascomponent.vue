@@ -153,9 +153,20 @@ export default {
 			}
 		},
 		drawRectangle(data) {
-			data.strokeWidth = 0;
-			data.fill = this.color;
-			let rect = new fabric.Rect(data);
+			console.log(data)
+			let options = {
+				strokeWidth: 0,
+				fill: this.color,
+				left: data.left,
+				top: data.top,
+				height: data.height,
+				width: data.width
+			}
+			if (data.width < 0)
+				options.left += data.width
+			if (data.height < 0)
+				options.top += data.height
+			let rect = new fabric.Rect(options);
 			this.canvasObj.add(rect);
 		},
 		selectText() {
@@ -164,11 +175,21 @@ export default {
 			this.mode = "Text";
 		},
 		drawTextBox(data) {
-			data.fontSize = this.text.fontSize;
-			data.textAlign = this.text.textAlign;
-			data.fill = this.color;
-			data.fontFamily = this.text.fontFamily;
-			var text = new fabric.Textbox("Text...", data);
+			let options = {
+				left: data.left,
+				top: data.top,
+				height: data.height,
+				width: data.width,
+				fontSize: this.text.fontSize,
+				textAlign: this.text.textAlign,
+				fill: this.color,
+				fontFamily: this.text.fontFamily,
+			}
+			if (options.width < 0)
+				options.left += data.width
+			if (options.height < 0)
+				options.top += data.height
+			var text = new fabric.Textbox("Text...", options);
 			this.lastActions.push(text);
 			this.canvasObj.add(text);
 			this.selectSelect();
@@ -220,7 +241,7 @@ export default {
 			this.mode = "Circle";
 		},
 		drawCircle(data) {
-			const radius = data.width / 2;
+			const radius = Math.abs(data.width / 2);
 			let options = {
 				radius: radius,
 				top: data.top,
@@ -228,6 +249,10 @@ export default {
 				fill: this.color,
 				strokeWidth: parseInt(this.circle.strokeWidth)
 			};
+			if (data.width < 0)
+				options.left -= radius * 2
+			if (data.height < 0)
+				options.top -= radius * 2
 			let circle = new fabric.Circle(options);
 			this.lastActions.push(circle);
 			this.canvasObj.add(circle);
@@ -254,6 +279,6 @@ export default {
 
 <style type="text/css" scoped>
 .buttonActive {
-	background-color: white;
+  background-color: white;
 }
 </style>
